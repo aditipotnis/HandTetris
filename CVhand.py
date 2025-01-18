@@ -2,28 +2,25 @@ import cv2
 import pyautogui
 import mediapipe as mp
 import time
-from cvzone.HandTrackingModule import HandDetector
 
 cap = cv2.VideoCapture(0)
 
 mp_hands = mp.solutions.hands
-hands = mp_hands.Hands(static_image_mode=False, max_num_hands=2,
+hands_detector = mp_hands.Hands(static_image_mode=False, max_num_hands=2,
                        min_detection_confidence=0.8, min_tracking_confidence=0.5)
 
 mp_drawing = mp.solutions.drawing_utils
 
 while True:
     ret, frame = cap.read()
-    hands, frame = detector.findHands(frame)
     if not ret:
         break
     
     image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    
-    results = hands.process(image_rgb)
+    results = hands_detector.process(image_rgb)
     
     if results.multi_hand_landmarks:
-        for hand_no, hand_landmarks in enumerate[results.multi_hand_landmarks]:
+        for hand_no, hand_landmarks in enumerate(results.multi_hand_landmarks):
             mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
             
             thumb_tip = hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_TIP]
@@ -46,8 +43,8 @@ while True:
             )
 
             hand_center_x = (
-                thumb_tip.x + index_tip.x + 
-                middle_tip.x + ring_tip.x + pinky_tip.x
+                thumb_tip.x + index_finger_tip.x + 
+                middle_finger_tip.x + ring_finger_tip.x + pinky_tip.x
             ) / 5
 
             if hand_no == 0:
