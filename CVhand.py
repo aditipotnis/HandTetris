@@ -4,18 +4,20 @@ import mediapipe as mp
 import time
 
 cap = cv2.VideoCapture(0)
+# Set resolution to ~140p (256x144)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 256)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 144)
 
 mp_hands = mp.solutions.hands
 hands_detector = mp_hands.Hands(static_image_mode=False, max_num_hands=2,
-                       min_detection_confidence=0.8, min_tracking_confidence=0.5)
-
+                              min_detection_confidence=0.8, min_tracking_confidence=0.5)
 mp_drawing = mp.solutions.drawing_utils
 
 while True:
     ret, frame = cap.read()
     if not ret:
         break
-    
+        
     image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     results = hands_detector.process(image_rgb)
     
@@ -41,32 +43,30 @@ while True:
                 ring_finger_tip.y > thumb_tip.y and
                 pinky_tip.y > thumb_tip.y
             )
-
+            
             hand_center_x = (
-                thumb_tip.x + index_finger_tip.x + 
+                thumb_tip.x + index_finger_tip.x +
                 middle_finger_tip.x + ring_finger_tip.x + pinky_tip.x
             ) / 5
-
+            
             if hand_no == 0:
-              if is_hand_closed:
-                pyautogui.press('up')
-              if hand_center_x < 0.4:
-                pyautogui.press('right')
-                time.sleep(0.1)
-              if hand_center_x > 0.6:
-                pyautogui.press('left')
-                time.sleep(0.1)
-
+                if is_hand_closed:
+                    pyautogui.press('up')
+                if hand_center_x < 0.4:
+                    pyautogui.press('right')
+                    time.sleep(0.1)
+                if hand_center_x > 0.6:
+                    pyautogui.press('left')
+                    time.sleep(0.1)
+            
             if hand_no == 1:
-              if not is_hand_closed:
-                pyautogui.press('down')
-                time.sleep(0.1)
-            
-            
-    cv2.imshow('CV', frame)
+                if not is_hand_closed:
+                    pyautogui.press('down')
+                    time.sleep(0.1)
     
+    cv2.imshow('CV', frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
-    
+
 cap.release()
 cv2.destroyAllWindows()
