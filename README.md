@@ -6,5 +6,5 @@
 opencv
 mediapipe
 
-## Base Tetris game used
+### Base Tetris game used
 https://gist.github.com/silvasur/565419 
