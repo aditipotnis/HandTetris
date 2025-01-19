@@ -190,6 +190,10 @@ class Tetris2P:
         # Track if we have an "up" press locked to avoid spamming
         self.p1_is_pointing = False
         self.p2_is_pointing = False
+        
+        #For secret command
+        self.p1_secret = False
+        self.p2_secret = False
 
     # ----------------------------------------------------------------
     # Stone Management
@@ -352,6 +356,8 @@ class Tetris2P:
         while True:
             # 1) Grab a frame from the camera, run Mediapipe
             ret, frame = self.cap.read()
+            frame = cv2.flip(frame, 1)
+
             if not ret:
                 print("Camera read error!")
                 self.quit()
@@ -393,9 +399,17 @@ class Tetris2P:
                         pinky_tip.y > index_tip.y
                     )
 
+                    #Special super secret move: try at your own risk
+                    special_up = (
+                        index_tip.y > thumb_tip.y and 
+                        middle_tip.y < index_tip.y and  
+                        ring_tip.y > index_tip.y and
+                        pinky_tip.y > index_tip.y
+                    )
+
                     # Decide which player: left half <0.5 => P1, else => P2
                     if hand_center_x < 0.5:
-                        # Player 1 logic
+                        #Player 2 Code
                         if is_pointing and not self.p1_is_pointing:
                             # Equivalent to pressing W => rotate
                             self.rotate_p1()
@@ -403,6 +417,9 @@ class Tetris2P:
                         elif is_hand_closed:
                             # Equivalent to pressing S => drop
                             self.drop_p1()
+                        elif special_up and not self.p1_secret:
+                            self.board2 = add_garbage(self.board2, 1)
+                            self.p1_secret = True
                         else:
                             # Move left or right?
                             if hand_center_x < 0.3:
@@ -416,9 +433,12 @@ class Tetris2P:
                         # Reset pointing if not pointing
                         if not is_pointing:
                             self.p1_is_pointing = False
+                        if not special_up:
+                            self.p1_secret = False
+                        
 
                     else:
-                        # Player 2 logic
+                        # Player 1 logic
                         if is_pointing and not self.p2_is_pointing:
                             # 'UP' => rotate
                             self.rotate_p2()
@@ -426,6 +446,9 @@ class Tetris2P:
                         elif is_hand_closed:
                             # 'DOWN' => drop
                             self.drop_p2()
+                        elif special_up and not self.p2_secret:
+                            self.board1 = add_garbage(self.board1, 1)
+                            self.p2_secret = True
                         else:
                             # Move left or right?
                             # But for P2, "left" = K_LEFT => move_p2(-1), "right" = K_RIGHT => move_p2(+1)
@@ -440,6 +463,10 @@ class Tetris2P:
                         # Reset pointing
                         if not is_pointing:
                             self.p2_is_pointing = False
+                        if not special_up:
+                            self.p2_secret = False
+                        
+                        
 
             # Show CV debug window
             cv2.imshow("Hand Gestures", frame)
