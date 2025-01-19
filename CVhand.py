@@ -5,13 +5,15 @@ import time
 
 cap = cv2.VideoCapture(0)
 # Set resolution to ~140p (256x144)
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, 256)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 144)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 80)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 60)
 
 mp_hands = mp.solutions.hands
-hands_detector = mp_hands.Hands(static_image_mode=False, max_num_hands=2,
+hands_detector = mp_hands.Hands(static_image_mode=False, max_num_hands=1,
                               min_detection_confidence=0.8, min_tracking_confidence=0.5)
 mp_drawing = mp.solutions.drawing_utils
+
+is_pointing_detected = False
 
 while True:
     ret, frame = cap.read()
@@ -48,21 +50,38 @@ while True:
                 thumb_tip.x + index_finger_tip.x +
                 middle_finger_tip.x + ring_finger_tip.x + pinky_tip.x
             ) / 5
+
+            is_pointing = (
+                index_finger_tip.y < thumb_tip.y and 
+                middle_finger_tip.y > index_finger_tip.y and  
+                ring_finger_tip.y > index_finger_tip.y and
+                pinky_tip.y > index_finger_tip.y
+            )
             
             if hand_no == 0:
-                if is_hand_closed:
-                    pyautogui.press('up')
+                if is_pointing and not is_pointing_detected:
+                    print("up")
+                    #pyautogui.press('up')
+                    is_pointing_detected = True
+                elif is_hand_closed:
+                    print("down")
+                    #pyautogui.press('down')
                 if hand_center_x < 0.4:
-                    pyautogui.press('right')
+                    #pyautogui.press('right')
+                    print("right")
                     time.sleep(0.1)
+                    
                 if hand_center_x > 0.6:
-                    pyautogui.press('left')
+                    #pyautogui.press('left')
                     time.sleep(0.1)
-            
-            if hand_no == 1:
-                if not is_hand_closed:
-                    pyautogui.press('down')
-                    time.sleep(0.1)
+                    print("left")
+
+            if not is_pointing:
+                is_pointing_detected = False
+            # if hand_no == 1:
+            #     if not is_hand_closed:
+            #         pyautogui.press('down')
+            #         time.sleep(0.1)
     
     cv2.imshow('CV', frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
