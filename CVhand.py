@@ -58,23 +58,23 @@ while True:
                 pinky_tip.y > index_finger_tip.y
             )
             
-            if hand_no == 0:
-                if is_pointing and not is_pointing_detected:
-                    print("up")
-                    #pyautogui.press('up')
-                    is_pointing_detected = True
-                elif is_hand_closed:
-                    print("down")
-                    #pyautogui.press('down')
-                if hand_center_x < 0.4:
-                    #pyautogui.press('right')
-                    print("right")
-                    time.sleep(0.1)
+            
+            if is_pointing and not is_pointing_detected:
+                #print("up")
+                pyautogui.press('up')
+                is_pointing_detected = True
+            elif is_hand_closed:
+                #print("down")
+                pyautogui.press('down')
+            elif hand_center_x < 0.4:
+                pyautogui.press('right')
+                #print("right")
+                time.sleep(0.1)
                     
-                if hand_center_x > 0.6:
-                    #pyautogui.press('left')
-                    time.sleep(0.1)
-                    print("left")
+            elif hand_center_x > 0.6:
+                pyautogui.press('left')
+                time.sleep(0.1)
+                #print("left")
 
             if not is_pointing:
                 is_pointing_detected = False
