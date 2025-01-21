@@ -8,6 +8,3 @@ mediapipe
 
 ### Base Tetris game used
 https://gist.github.com/silvasur/565419 
-
-### Demo
-https://www.youtube.com/watch?v=YANsxD1dbfc
